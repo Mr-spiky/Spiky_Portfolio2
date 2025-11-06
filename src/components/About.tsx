@@ -1,11 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { Download, MapPin, Calendar, Coffee, Code2, Heart, Sparkles } from "lucide-react";
 import { experiences } from "@/data/portfolio";
 import { fadeInUp, fadeInLeft, fadeInRight, staggerContainer } from "@/lib/utils";
 
 export default function About() {
+  const handleImageError = () => {
+    console.log('Profile image failed to load');
+  };
+
   return (
     <section id="about" className="py-20 bg-white dark:bg-gray-900 relative overflow-hidden">
       {/* Background Elements */}
@@ -50,27 +55,57 @@ export default function About() {
               className="relative w-64 h-64 mx-auto lg:mx-0"
               whileHover={{ scale: 1.05 }}
             >
-              <div className="w-full h-full rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 p-1">
-                <div className="w-full h-full rounded-xl bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
-                  <div className="text-6xl">👨‍💻</div>
+              {/* Gradient Border */}
+              <div className="w-full h-full rounded-2xl bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500 p-1 shadow-xl">
+                <div className="w-full h-full rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-800 relative">
+                  <Image
+                    src="/images/profile.jpg"
+                    alt="Shivam Kumar - Full Stack Developer"
+                    width={256}
+                    height={256}
+                    className="w-full h-full object-cover object-center transition-all duration-500 hover:scale-110 filter hover:brightness-110"
+                    priority
+                    quality={95}
+                    placeholder="blur"
+                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                    onError={handleImageError}
+                  />
+                  
+                  {/* Subtle overlay for better contrast */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 via-transparent to-transparent"></div>
                 </div>
               </div>
               
               {/* Floating Icons */}
               <motion.div
-                className="absolute -top-4 -right-4 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center"
+                className="absolute -top-4 -right-4 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-xl flex items-center justify-center backdrop-blur-sm"
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                whileHover={{ scale: 1.1 }}
               >
                 <Code2 className="w-6 h-6 text-purple-600" />
               </motion.div>
               
               <motion.div
-                className="absolute -bottom-4 -left-4 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center"
+                className="absolute -bottom-4 -left-4 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-xl flex items-center justify-center backdrop-blur-sm"
                 animate={{ y: [0, 10, 0] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                whileHover={{ scale: 1.1 }}
               >
                 <Coffee className="w-6 h-6 text-pink-600" />
+              </motion.div>
+              
+              {/* Sparkle effect */}
+              <motion.div
+                className="absolute top-1/4 right-1/4 w-4 h-4"
+                animate={{ 
+                  scale: [1, 1.5, 1],
+                  opacity: [0.3, 1, 0.3],
+                  rotate: [0, 180, 360]
+                }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <Sparkles className="w-4 h-4 text-yellow-400" />
               </motion.div>
             </motion.div>
 
@@ -102,17 +137,40 @@ export default function About() {
             </div>
 
             {/* Download Resume Button */}
-            <motion.button
-              className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/25"
+            <motion.a
+              href="/resume.pdf"
+              download="Shivam_Kumar_Resume.pdf"
+              className="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/25 overflow-hidden"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <div className="flex items-center gap-3">
-                <Download className="w-5 h-5" />
+              {/* Animated background */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-pink-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              />
+              
+              {/* Content */}
+              <div className="relative z-10 flex items-center gap-3">
+                <motion.div
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <Download className="w-5 h-5" />
+                </motion.div>
                 <span>Download Resume</span>
               </div>
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
-            </motion.button>
+              
+              {/* Sparkle effect */}
+              <motion.div
+                className="absolute -top-1 -right-1 z-20"
+                whileHover={{ scale: 1.2, rotate: 180 }}
+              >
+                <Sparkles className="w-4 h-4 text-yellow-300" />
+              </motion.div>
+              
+              {/* Glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full blur opacity-75 group-hover:opacity-100 transition-opacity -z-10"></div>
+            </motion.a>
           </motion.div>
 
           {/* Right Side - Description & Experience */}

@@ -3,18 +3,24 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ExternalLink, Github, Filter, Code, Sparkles } from "lucide-react";
-import { featuredProjects } from "@/data/portfolio";
+import { 
+  projects, 
+  getFeaturedProjects, 
+  getProjectCategories,
+  type Project,
+  type ProjectCategory 
+} from "@/data/projects";
 import { fadeInUp, staggerContainer } from "@/lib/utils";
 
 export default function Projects() {
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState<string>("All");
   const [hoveredProject, setHoveredProject] = useState<number | null>(null);
 
-  const categories = ["All", "Frontend", "Fullstack", "AI/ML", "Web App", "Landing Page"];
+  const categories: string[] = ["All", ...getProjectCategories()];
   
   const filteredProjects = filter === "All" 
-    ? featuredProjects.filter(project => project.featured)
-    : featuredProjects.filter(project => project.category === filter);
+    ? projects // Show ALL projects when "All" is selected
+    : projects.filter(project => project.category === filter);
 
   const getCategoryColor = (category: string) => {
     const colors = {
@@ -144,6 +150,13 @@ export default function Projects() {
                     {project.status}
                   </div>
 
+                  {/* Featured Badge */}
+                  {project.featured && (
+                    <div className="absolute top-14 left-4 px-2 py-1 rounded-full text-xs font-semibold bg-yellow-500 text-white">
+                      Featured
+                    </div>
+                  )}
+
                   {/* Hover Overlay */}
                   <motion.div
                     className="absolute inset-0 bg-black/60 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -220,24 +233,50 @@ export default function Projects() {
           </motion.div>
         </AnimatePresence>
 
-        {/* View All Projects Button */}
-        <motion.div
-          className="text-center mt-12"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-        >
-          <motion.button
-            className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/25"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setFilter("All")}
+        {/* View All Projects Button - Only show when a specific category is filtered */}
+        {filter !== "All" && (
+          <motion.div
+            className="text-center mt-12"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5 }}
           >
-            <span className="relative z-10">View All Projects</span>
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
-          </motion.button>
-        </motion.div>
+            <motion.button
+              className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/25"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setFilter("All")}
+            >
+              <span className="relative z-10">View All Projects ({projects.length})</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
+            </motion.button>
+          </motion.div>
+        )}
+
+        {/* GitHub Portfolio Link - Show when "All" is active */}
+        {filter === "All" && (
+          <motion.div
+            className="text-center mt-12"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5 }}
+          >
+            <motion.a
+              href="https://github.com/Mr-spiky"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/25 inline-flex items-center gap-2"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <span className="relative z-10">View More on GitHub</span>
+              <ExternalLink className="w-5 h-5 relative z-10" />
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
+            </motion.a>
+          </motion.div>
+        )}
       </div>
     </section>
   );

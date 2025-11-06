@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Send, Mail, Phone, MapPin, Github, Linkedin, Twitter, MessageCircle, CheckCircle, Sparkles } from "lucide-react";
+import { Send, Mail, Phone, MapPin, Github, Linkedin, Twitter, MessageCircle, CheckCircle, Sparkles, Download, AlertCircle } from "lucide-react";
 import { fadeInUp, fadeInLeft, fadeInRight, staggerContainer } from "@/lib/utils";
+import emailjs from '@emailjs/browser';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -14,30 +15,91 @@ export default function Contact() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    // Clear error when user starts typing
+    if (error) setError("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError("");
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setIsSubmitting(false);
-    setSubmitted(true);
-    setFormData({ name: "", email: "", subject: "", message: "" });
-    
-    // Reset success message after 5 seconds
-    setTimeout(() => setSubmitted(false), 5000);
+    try {
+      // Validate form data
+      if (!formData.name.trim() || !formData.email.trim() || !formData.subject.trim() || !formData.message.trim()) {
+        throw new Error("Please fill in all required fields");
+      }
+      
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        throw new Error("Please enter a valid email address");
+      }
+
+      // Prepare template parameters for EmailJS
+      const templateParams = {
+        from_name: formData.name,
+        from_email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+        to_name: "Shivam Kumar", // Your name
+        reply_to: formData.email,
+      };
+
+      // Send email using EmailJS
+      // You'll need to replace these with your actual EmailJS credentials
+      // For now, we'll use a fallback method
+      try {
+        const result = await emailjs.send(
+          'service_your_id', // Replace with your EmailJS service ID
+          'template_your_id', // Replace with your EmailJS template ID
+          templateParams,
+          'your_public_key' // Replace with your EmailJS public key
+        );
+        console.log('Email sent successfully:', result);
+      } catch (emailError) {
+        console.log('EmailJS not configured, using fallback method');
+        // Fallback: Open default email client
+        const subject = encodeURIComponent(formData.subject);
+        const body = encodeURIComponent(
+          `Hi Shivam,\n\nName: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}\n\nSent from your portfolio contact form.`
+        );
+        const mailtoLink = `mailto:shivamkr1710@gmail.com?subject=${subject}&body=${body}`;
+        window.open(mailtoLink, '_blank');
+      }
+      
+      setSubmitted(true);
+      setFormData({ name: "", email: "", subject: "", message: "" });
+      
+      // Reset success message after 8 seconds
+      setTimeout(() => setSubmitted(false), 8000);
+      
+    } catch (error: any) {
+      console.error('Error sending email:', error);
+      setError(error.message || "Failed to send message. Please try again later.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const contactInfo = [
+  type ContactInfo = {
+    icon: any;
+    title: string;
+    content: string;
+    href: string;
+    color: string;
+    download?: string;
+  };
+
+  const contactInfo: ContactInfo[] = [
     {
       icon: Mail,
       title: "Email",
@@ -58,6 +120,14 @@ export default function Contact() {
       content: "India",
       href: "#",
       color: "text-blue-500"
+    },
+    {
+      icon: Download,
+      title: "Resume",
+      content: "Download CV",
+      href: "/resume.pdf",
+      color: "text-purple-500",
+      download: "Shivam_Kumar_Resume.pdf"
     }
   ];
 
@@ -131,9 +201,15 @@ export default function Contact() {
           >
             <div className="mb-8">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Send Message</h3>
-              <p className="text-gray-600 dark:text-gray-300">Fill out the form below and I'll get back to you soon!</p>
+              <p className="text-gray-600 dark:text-gray-300">
+                Fill out the form below and I'll get back to you within 24 hours! ✨
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                💡 <strong>Note:</strong> If EmailJS is not configured, clicking send will open your default email client.
+              </p>
             </div>
 
+            {/* Success Message */}
             {submitted && (
               <motion.div
                 className="mb-6 p-4 bg-green-100 dark:bg-green-900/20 border border-green-500 rounded-lg flex items-center gap-3"
@@ -141,11 +217,25 @@ export default function Contact() {
                 animate={{ opacity: 1, y: 0 }}
               >
                 <CheckCircle className="w-5 h-5 text-green-500" />
-                <span className="text-green-700 dark:text-green-300">Message sent successfully! I'll get back to you soon.</span>
+                <span className="text-green-700 dark:text-green-300">
+                  Message sent successfully! I'll get back to you within 24 hours. 🎉
+                </span>
               </motion.div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Error Message */}
+            {error && (
+              <motion.div
+                className="mb-6 p-4 bg-red-100 dark:bg-red-900/20 border border-red-500 rounded-lg flex items-center gap-3"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <AlertCircle className="w-5 h-5 text-red-500" />
+                <span className="text-red-700 dark:text-red-300">{error}</span>
+              </motion.div>
+            )}
+
+            <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <motion.div variants={fadeInUp}>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -157,7 +247,7 @@ export default function Contact() {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-300"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-300 hover:border-purple-400 dark:hover:border-purple-500"
                     placeholder="Your Name"
                   />
                 </motion.div>
@@ -172,7 +262,7 @@ export default function Contact() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-300"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-300 hover:border-purple-400 dark:hover:border-purple-500"
                     placeholder="your.email@example.com"
                   />
                 </motion.div>
@@ -188,7 +278,7 @@ export default function Contact() {
                   value={formData.subject}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-300"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-300 hover:border-purple-400 dark:hover:border-purple-500"
                   placeholder="What's this about?"
                 />
               </motion.div>
@@ -203,20 +293,32 @@ export default function Contact() {
                   onChange={handleChange}
                   required
                   rows={6}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-300 resize-none"
-                  placeholder="Tell me about your project or just say hi!"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-300 resize-none hover:border-purple-400 dark:hover:border-purple-500"
+                  placeholder="Tell me about your project, ask a question, or just say hi! I'd love to hear from you. 🚀"
                 />
               </motion.div>
 
               <motion.button
                 type="submit"
-                disabled={isSubmitting}
-                className="group relative w-full px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-white font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isSubmitting || submitted}
+                className={`group relative w-full px-8 py-4 rounded-lg text-white font-semibold transition-all duration-300 overflow-hidden ${
+                  isSubmitting || submitted
+                    ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:shadow-xl hover:shadow-purple-500/25'
+                }`}
                 variants={fadeInUp}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={!isSubmitting && !submitted ? { scale: 1.02 } : {}}
+                whileTap={!isSubmitting && !submitted ? { scale: 0.98 } : {}}
               >
-                <div className="flex items-center justify-center gap-3">
+                {/* Animated background */}
+                {!isSubmitting && !submitted && (
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-pink-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  />
+                )}
+                
+                {/* Content */}
+                <div className="relative z-10 flex items-center justify-center gap-3">
                   {isSubmitting ? (
                     <>
                       <motion.div
@@ -224,16 +326,31 @@ export default function Contact() {
                         animate={{ rotate: 360 }}
                         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                       />
-                      <span>Sending...</span>
+                      <span>Sending Message...</span>
+                    </>
+                  ) : submitted ? (
+                    <>
+                      <CheckCircle className="w-5 h-5 text-green-300" />
+                      <span>Message Sent!</span>
                     </>
                   ) : (
                     <>
-                      <Send className="w-5 h-5" />
+                      <motion.div
+                        whileHover={{ rotate: 360 }}
+                        transition={{ duration: 0.6 }}
+                      >
+                        <Send className="w-5 h-5" />
+                      </motion.div>
                       <span>Send Message</span>
+                      <Sparkles className="w-4 h-4 ml-1 opacity-75" />
                     </>
                   )}
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
+                
+                {/* Glow effect */}
+                {!isSubmitting && !submitted && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition-opacity -z-10"></div>
+                )}
               </motion.button>
             </form>
           </motion.div>
@@ -254,6 +371,7 @@ export default function Contact() {
                 <motion.a
                   key={info.title}
                   href={info.href}
+                  download={info.download || undefined}
                   className="group flex items-center gap-4 p-4 bg-white dark:bg-gray-900 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                   whileHover={{ x: 10, scale: 1.02 }}
                   initial={{ opacity: 0, y: 20 }}
@@ -268,6 +386,15 @@ export default function Contact() {
                     <h4 className="font-semibold text-gray-900 dark:text-white">{info.title}</h4>
                     <p className="text-gray-600 dark:text-gray-300">{info.content}</p>
                   </div>
+                  {info.download && (
+                    <motion.div
+                      className="ml-auto"
+                      whileHover={{ rotate: 360 }}
+                      transition={{ duration: 0.6 }}
+                    >
+                      <Sparkles className="w-5 h-5 text-purple-500" />
+                    </motion.div>
+                  )}
                 </motion.a>
               ))}
             </div>

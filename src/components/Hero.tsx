@@ -3,13 +3,17 @@
 import { motion } from "framer-motion";
 import { ChevronDown, Github, Linkedin, Mail, Code, Sparkles } from "lucide-react";
 import { fadeInUp, staggerContainer } from "@/lib/utils";
+import Link from "next/link";
 
 export default function Hero() {
-  const scrollToProjects = () => {
-    document.getElementById('projects')?.scrollIntoView({ 
-      behavior: 'smooth' 
-    });
-  };
+  // Predefined positions to avoid hydration mismatch
+  const particlePositions = [
+    { left: 10, top: 20 }, { left: 85, top: 15 }, { left: 25, top: 80 }, { left: 70, top: 75 },
+    { left: 45, top: 10 }, { left: 90, top: 50 }, { left: 15, top: 60 }, { left: 60, top: 25 },
+    { left: 35, top: 90 }, { left: 80, top: 35 }, { left: 5, top: 45 }, { left: 55, top: 85 },
+    { left: 95, top: 70 }, { left: 40, top: 5 }, { left: 20, top: 55 }, { left: 75, top: 95 },
+    { left: 65, top: 40 }, { left: 30, top: 70 }, { left: 50, top: 30 }, { left: 85, top: 85 }
+  ];
 
   return (
     <section className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -21,24 +25,24 @@ export default function Hero() {
       </div>
 
       {/* Floating Particles */}
-      <div className="absolute inset-0">
-        {Array.from({ length: 20 }).map((_, i) => (
+      <div className="absolute inset-0" suppressHydrationWarning>
+        {particlePositions.map((position, i) => (
           <motion.div
             key={i}
             className="absolute w-2 h-2 bg-white rounded-full opacity-20"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              left: `${position.left}%`,
+              top: `${position.top}%`,
             }}
             animate={{
               y: [-20, 20],
               opacity: [0.2, 0.8, 0.2],
             }}
             transition={{
-              duration: 3 + Math.random() * 2,
+              duration: 3 + (i % 3),
               repeat: Infinity,
               ease: "easeInOut",
-              delay: Math.random() * 2,
+              delay: i * 0.2,
             }}
           />
         ))}
@@ -124,15 +128,16 @@ export default function Hero() {
             variants={fadeInUp}
             className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16"
           >
-            <motion.button
-              onClick={scrollToProjects}
-              className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white font-semibold text-lg transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/25 hover:scale-105"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <span className="relative z-10">View My Work</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
-            </motion.button>
+            <Link href="/projects">
+              <motion.div
+                className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white font-semibold text-lg transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/25 hover:scale-105 cursor-pointer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="relative z-10">View My Work</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
+              </motion.div>
+            </Link>
 
             <motion.a
               href="mailto:shivamkr1710@gmail.com"
@@ -175,7 +180,11 @@ export default function Hero() {
           >
             <span className="text-gray-400 text-sm mb-4">Scroll to explore</span>
             <motion.button
-              onClick={scrollToProjects}
+              onClick={() => {
+                document.getElementById('about')?.scrollIntoView({ 
+                  behavior: 'smooth' 
+                });
+              }}
               className="p-2 rounded-full border border-gray-600 text-gray-400 hover:text-white hover:border-white transition-colors"
               animate={{ y: [0, 10, 0] }}
               transition={{

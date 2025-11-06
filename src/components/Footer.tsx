@@ -149,7 +149,7 @@ export default function Footer() {
 
             {/* Contact Button */}
             <motion.a
-              href="mailto:shivamkr1710@gmail.com"
+              href="mailto:shivsim2005@gmail.com"
               className="inline-block mt-4 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white font-semibold hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-300"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
