@@ -18,7 +18,7 @@ export default function Footer() {
     },
     {
       icon: Linkedin,
-      href: "https://linkedin.com/in/shivam-kumar",
+      href: "https://www.linkedin.com/in/shivam-kumar-58b63b32a/",
       label: "LinkedIn"
     },
     {

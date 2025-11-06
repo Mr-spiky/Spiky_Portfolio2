@@ -141,7 +141,7 @@ export default function Contact() {
     {
       icon: Linkedin,
       name: "LinkedIn",
-      href: "https://linkedin.com/in/shivam-kumar",
+      href: "https://www.linkedin.com/in/shivam-kumar-58b63b32a/",
       color: "hover:text-blue-600"
     },
     {

@@ -156,7 +156,7 @@ export default function Hero() {
           >
             {[
               { icon: Github, href: "https://github.com/Mr-spiky", label: "GitHub" },
-              { icon: Linkedin, href: "https://linkedin.com/in/shivam-kumar", label: "LinkedIn" },
+              { icon: Linkedin, href: "https://www.linkedin.com/in/shivam-kumar-58b63b32a/", label: "LinkedIn" },
               { icon: Mail, href: "mailto:shivamkr1710@gmail.com", label: "Email" }
             ].map(({ icon: Icon, href, label }) => (
               <motion.a
